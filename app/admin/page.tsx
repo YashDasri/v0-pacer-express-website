@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Navbar } from "@/components/navbar";
-import { CartProvider } from "@/lib/cart-context";
+import { AdminNavbar } from "@/components/admin-navbar";
 import { ShoppingCart, Clock, Package, Users, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -45,11 +44,11 @@ const recentOrders = [
   },
 ];
 
-function AdminContent() {
+export default function AdminPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="bg-slate-50 min-h-screen">
+    <div className="min-h-screen bg-slate-50">
+      <AdminNavbar />
+      <main className="min-h-screen">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
             <h1 className="text-3xl font-black text-slate-800">DASHBOARD</h1>
@@ -141,13 +140,5 @@ function AdminContent() {
         </div>
       </main>
     </div>
-  );
-}
-
-export default function AdminPage() {
-  return (
-    <CartProvider>
-      <AdminContent />
-    </CartProvider>
   );
 }

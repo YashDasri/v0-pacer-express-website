@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Navbar } from "@/components/navbar";
-import { CartProvider } from "@/lib/cart-context";
+import { AdminNavbar as Navbar } from "@/components/admin-navbar";
 import { Eye, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { CartProvider } from "@/components/cart-provider";
 
 interface Order {
   id: string;

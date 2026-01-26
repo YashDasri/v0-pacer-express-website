@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, ShoppingCart, Cookie, Apple, BookOpen, Droplet } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { ProductCard } from "@/components/product-card";
@@ -11,7 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const categories = ["All", "Snacks", "Groceries", "Academic", "Daily"];
+const categories = [
+  { name: "All", icon: ShoppingCart },
+  { name: "Snacks", icon: Cookie },
+  { name: "Groceries", icon: Apple },
+  { name: "Academic", icon: BookOpen },
+  { name: "Daily", icon: Droplet },
+];
 
 function ShopContent() {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -34,7 +40,8 @@ function ShopContent() {
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-4xl font-black text-slate-800">SHOP ALL</h1>
+            <h1 className="text-4xl font-black text-slate-800">SHOP PRODUCTS</h1>
+            <p className="mt-2 text-slate-500">Browse essentials from Pacer Market - delivered in 10 minutes</p>
           </div>
 
           {/* Search and Filters */}
@@ -53,21 +60,26 @@ function ShopContent() {
 
             {/* Category Filters */}
             <div className="flex flex-wrap gap-2">
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category)}
-                  className={cn(
-                    selectedCategory === category
-                      ? "bg-[#1e3a5f] text-white hover:bg-[#1e3a5f]/90"
-                      : "border-slate-200 text-slate-600 hover:bg-slate-100 bg-white"
-                  )}
-                >
-                  {category}
-                </Button>
-              ))}
+              {categories.map((category) => {
+                const Icon = category.icon;
+                return (
+                  <Button
+                    key={category.name}
+                    variant={selectedCategory === category.name ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedCategory(category.name)}
+                    className={cn(
+                      "gap-2",
+                      selectedCategory === category.name
+                        ? "bg-[#1e3a5f] text-white hover:bg-[#1e3a5f]/90"
+                        : "border-slate-200 text-slate-600 hover:bg-slate-100 bg-white"
+                    )}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {category.name}
+                  </Button>
+                );
+              })}
             </div>
           </div>
 
