@@ -1,61 +1,47 @@
 "use client";
 
+import Link from "next/link";
 import { Navbar } from "@/components/navbar";
 import { CartProvider } from "@/lib/cart-context";
-import { Package, ShoppingBag, DollarSign, Clock, TrendingUp, Users } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ShoppingCart, Clock, Package, Users, DollarSign } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const stats = [
   {
     title: "Total Orders",
-    value: "156",
-    change: "+12%",
-    icon: Package,
+    value: "1",
+    icon: ShoppingCart,
+    bgColor: "bg-blue-100",
+    iconColor: "text-blue-600",
   },
   {
-    title: "Revenue",
-    value: "$2,847",
-    change: "+8%",
-    icon: DollarSign,
-  },
-  {
-    title: "Active Orders",
-    value: "12",
-    change: "+3",
+    title: "Pending Orders",
+    value: "1",
     icon: Clock,
+    bgColor: "bg-yellow-100",
+    iconColor: "text-yellow-600",
   },
   {
-    title: "Products",
+    title: "Total Products",
     value: "20",
-    change: "0",
-    icon: ShoppingBag,
+    icon: Package,
+    bgColor: "bg-green-100",
+    iconColor: "text-green-600",
+  },
+  {
+    title: "Total Users",
+    value: "4",
+    icon: Users,
+    bgColor: "bg-purple-100",
+    iconColor: "text-purple-600",
   },
 ];
 
 const recentOrders = [
   {
     id: "#81608E38",
-    customer: "John Doe",
-    location: "Student Activity Center",
     total: 11.97,
     status: "Preparing",
-    time: "2 min ago",
-  },
-  {
-    id: "#72819F42",
-    customer: "Jane Smith",
-    location: "Library",
-    total: 8.49,
-    status: "Delivered",
-    time: "15 min ago",
-  },
-  {
-    id: "#63927G55",
-    customer: "Mike Johnson",
-    location: "Science Building",
-    total: 15.98,
-    status: "In Transit",
-    time: "8 min ago",
   },
 ];
 
@@ -63,147 +49,95 @@ function AdminContent() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="mt-2 text-muted-foreground">
-            Welcome back! Here's an overview of your store.
-          </p>
-        </div>
+      <main className="bg-slate-50 min-h-screen">
+        <div className="container mx-auto px-4 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-black text-slate-800">DASHBOARD</h1>
+            <p className="mt-2 text-slate-500">
+              {"Welcome back! Here's what's happening today."}
+            </p>
+          </div>
 
-        {/* Stats Grid */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat) => (
-            <Card key={stat.title} className="bg-card border-border">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {stat.title}
-                </CardTitle>
-                <stat.icon className="h-5 w-5 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-card-foreground">{stat.value}</div>
-                <p className="text-xs text-emerald-500 flex items-center gap-1 mt-1">
-                  <TrendingUp className="h-3 w-3" />
-                  {stat.change} from last week
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Recent Orders */}
-        <div className="mt-8">
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-card-foreground">
-                Recent Orders
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border text-left">
-                      <th className="pb-3 text-sm font-medium text-muted-foreground">Order ID</th>
-                      <th className="pb-3 text-sm font-medium text-muted-foreground">Customer</th>
-                      <th className="pb-3 text-sm font-medium text-muted-foreground">Location</th>
-                      <th className="pb-3 text-sm font-medium text-muted-foreground">Total</th>
-                      <th className="pb-3 text-sm font-medium text-muted-foreground">Status</th>
-                      <th className="pb-3 text-sm font-medium text-muted-foreground">Time</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentOrders.map((order) => (
-                      <tr key={order.id} className="border-b border-border last:border-0">
-                        <td className="py-4 text-sm font-medium text-card-foreground">
-                          {order.id}
-                        </td>
-                        <td className="py-4 text-sm text-muted-foreground">{order.customer}</td>
-                        <td className="py-4 text-sm text-muted-foreground">{order.location}</td>
-                        <td className="py-4 text-sm text-card-foreground">
-                          ${order.total.toFixed(2)}
-                        </td>
-                        <td className="py-4">
-                          <span
-                            className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                              order.status === "Delivered"
-                                ? "bg-emerald-500/20 text-emerald-500"
-                                : order.status === "Preparing"
-                                  ? "bg-primary/20 text-primary"
-                                  : "bg-blue-500/20 text-blue-500"
-                            }`}
-                          >
-                            {order.status}
-                          </span>
-                        </td>
-                        <td className="py-4 text-sm text-muted-foreground">{order.time}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="mt-8 grid gap-6 lg:grid-cols-2">
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-card-foreground">
-                Popular Products
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  { name: "Doritos Nacho Cheese", sales: 45 },
-                  { name: "Coca-Cola 20oz", sales: 38 },
-                  { name: "Blue Pen 10-Pack", sales: 32 },
-                  { name: "Red Bull Energy", sales: 28 },
-                ].map((product, i) => (
-                  <div key={product.name} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-sm font-medium text-primary">
-                        {i + 1}
-                      </span>
-                      <span className="text-sm text-card-foreground">{product.name}</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">{product.sales} sold</span>
+          {/* Stats Grid */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {stats.map((stat) => (
+              <div key={stat.title} className="rounded-2xl bg-white p-6 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-slate-500">{stat.title}</p>
+                    <p className="mt-2 text-3xl font-bold text-slate-800">{stat.value}</p>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-card-foreground">
-                Top Delivery Locations
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  { name: "Student Activity Center", orders: 42 },
-                  { name: "Library", orders: 35 },
-                  { name: "Pacer Commons", orders: 28 },
-                  { name: "Science Building", orders: 22 },
-                ].map((location, i) => (
-                  <div key={location.name} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-sm font-medium text-primary">
-                        {i + 1}
-                      </span>
-                      <span className="text-sm text-card-foreground">{location.name}</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">{location.orders} orders</span>
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-full ${stat.bgColor}`}>
+                    <stat.icon className={`h-6 w-6 ${stat.iconColor}`} />
                   </div>
-                ))}
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            ))}
+          </div>
+
+          {/* Total Revenue */}
+          <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-500">Total Revenue</p>
+                <p className="mt-2 text-4xl font-bold text-green-600">$11.97</p>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
+                <DollarSign className="h-7 w-7 text-green-600" />
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Orders */}
+          <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-slate-800">Recent Orders</h2>
+              <Link href="/admin/orders">
+                <Button variant="outline" size="sm" className="text-slate-600 border-slate-200 bg-white hover:bg-slate-50">
+                  View All
+                </Button>
+              </Link>
+            </div>
+            
+            <div className="space-y-3">
+              {recentOrders.map((order) => (
+                <div key={order.id} className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
+                  <span className="font-medium text-slate-800">{order.id}</span>
+                  <div className="text-right">
+                    <p className="font-bold text-slate-800">${order.total.toFixed(2)}</p>
+                    <span className="text-sm text-yellow-600">{order.status}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <Link href="/admin/products" className="rounded-2xl bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+                  <Package className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-800">Manage Products</h3>
+                  <p className="text-sm text-slate-500">Add, edit, or remove products</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/admin/orders" className="rounded-2xl bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100">
+                  <ShoppingCart className="h-6 w-6 text-yellow-600" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-800">View Orders</h3>
+                  <p className="text-sm text-slate-500">Track and manage orders</p>
+                </div>
+              </div>
+            </Link>
+          </div>
         </div>
       </main>
     </div>

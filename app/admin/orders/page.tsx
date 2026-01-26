@@ -114,165 +114,170 @@ function OrdersContent() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">ORDERS</h1>
-            <p className="mt-2 text-muted-foreground">Manage and track customer orders</p>
+      <main className="bg-slate-50 min-h-screen">
+        <div className="container mx-auto px-4 py-8">
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-black text-slate-800">ORDERS</h1>
+              <p className="mt-2 text-slate-500">Manage and track customer orders</p>
+            </div>
+
+            <Select value={filter} onValueChange={setFilter}>
+              <SelectTrigger className="w-[180px] bg-white border-slate-200 text-slate-700">
+                <Filter className="mr-2 h-4 w-4" />
+                <SelectValue placeholder="All Orders" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Orders</SelectItem>
+                <SelectItem value="preparing">Preparing</SelectItem>
+                <SelectItem value="in transit">In Transit</SelectItem>
+                <SelectItem value="delivered">Delivered</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-[180px] bg-card border-border">
-              <Filter className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="All Orders" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Orders</SelectItem>
-              <SelectItem value="preparing">Preparing</SelectItem>
-              <SelectItem value="in transit">In Transit</SelectItem>
-              <SelectItem value="delivered">Delivered</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+          {/* Orders Table */}
+          <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50">
+                    <th className="px-6 py-4 text-left text-sm font-medium text-slate-500">Order ID</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-slate-500">Customer</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-slate-500">Location</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-slate-500">Total</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-slate-500">Status</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-slate-500">Date</th>
+                    <th className="px-6 py-4 text-left text-sm font-medium text-slate-500">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredOrders.map((order) => (
+                    <tr key={order.id} className="border-b border-slate-100 last:border-0">
+                      <td className="px-6 py-4 font-medium text-slate-800">{order.id}</td>
+                      <td className="px-6 py-4 text-slate-600">{order.customer}</td>
+                      <td className="px-6 py-4 text-slate-600">{order.location}</td>
+                      <td className="px-6 py-4 font-medium text-slate-800">${order.total.toFixed(2)}</td>
+                      <td className="px-6 py-4">
+                        <Select
+                          value={order.status}
+                          onValueChange={(value: Order["status"]) =>
+                            updateOrderStatus(order.id, value)
+                          }
+                        >
+                          <SelectTrigger
+                            className={`w-[130px] h-8 text-xs font-medium border-0 ${
+                              order.status === "Delivered"
+                                ? "bg-green-100 text-green-700"
+                                : order.status === "Preparing"
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : order.status === "In Transit"
+                                    ? "bg-blue-100 text-blue-700"
+                                    : "bg-red-100 text-red-700"
+                            }`}
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Preparing">Preparing</SelectItem>
+                            <SelectItem value="In Transit">In Transit</SelectItem>
+                            <SelectItem value="Delivered">Delivered</SelectItem>
+                            <SelectItem value="Cancelled">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </td>
+                      <td className="px-6 py-4 text-slate-500">{order.date}</td>
+                      <td className="px-6 py-4">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-slate-500 hover:text-slate-700"
+                          onClick={() => setSelectedOrder(order)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
-        {/* Orders Table */}
-        <div className="rounded-2xl bg-card p-6 overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border text-left">
-                <th className="pb-4 text-sm font-medium text-muted-foreground">Order ID</th>
-                <th className="pb-4 text-sm font-medium text-muted-foreground">Customer</th>
-                <th className="pb-4 text-sm font-medium text-muted-foreground">Location</th>
-                <th className="pb-4 text-sm font-medium text-muted-foreground">Total</th>
-                <th className="pb-4 text-sm font-medium text-muted-foreground">Status</th>
-                <th className="pb-4 text-sm font-medium text-muted-foreground">Date</th>
-                <th className="pb-4 text-sm font-medium text-muted-foreground">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOrders.map((order) => (
-                <tr key={order.id} className="border-b border-border last:border-0">
-                  <td className="py-4 text-sm font-medium text-card-foreground">{order.id}</td>
-                  <td className="py-4 text-sm text-muted-foreground">{order.customer}</td>
-                  <td className="py-4 text-sm text-muted-foreground">{order.location}</td>
-                  <td className="py-4 text-sm text-card-foreground">${order.total.toFixed(2)}</td>
-                  <td className="py-4">
-                    <Select
-                      value={order.status}
-                      onValueChange={(value: Order["status"]) =>
-                        updateOrderStatus(order.id, value)
-                      }
-                    >
-                      <SelectTrigger
-                        className={`w-[130px] h-8 text-xs font-medium border-0 ${
-                          order.status === "Delivered"
-                            ? "bg-emerald-500/20 text-emerald-500"
-                            : order.status === "Preparing"
-                              ? "bg-primary/20 text-primary"
-                              : order.status === "In Transit"
-                                ? "bg-blue-500/20 text-blue-500"
-                                : "bg-destructive/20 text-destructive"
+              {filteredOrders.length === 0 && (
+                <div className="py-12 text-center">
+                  <p className="text-slate-500">No orders found</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Order Details Dialog */}
+          <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+            <DialogContent className="bg-white border-slate-200">
+              <DialogHeader>
+                <DialogTitle className="text-slate-800">
+                  Order {selectedOrder?.id}
+                </DialogTitle>
+              </DialogHeader>
+              {selectedOrder && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-slate-500">Customer</span>
+                      <p className="font-medium text-slate-800">{selectedOrder.customer}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Location</span>
+                      <p className="font-medium text-slate-800">{selectedOrder.location}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Date</span>
+                      <p className="font-medium text-slate-800">{selectedOrder.date}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Status</span>
+                      <p
+                        className={`font-medium ${
+                          selectedOrder.status === "Delivered"
+                            ? "text-green-600"
+                            : selectedOrder.status === "Preparing"
+                              ? "text-yellow-600"
+                              : selectedOrder.status === "In Transit"
+                                ? "text-blue-600"
+                                : "text-red-600"
                         }`}
                       >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Preparing">Preparing</SelectItem>
-                        <SelectItem value="In Transit">In Transit</SelectItem>
-                        <SelectItem value="Delivered">Delivered</SelectItem>
-                        <SelectItem value="Cancelled">Cancelled</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td className="py-4 text-sm text-muted-foreground">{order.date}</td>
-                  <td className="py-4">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setSelectedOrder(order)}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                        {selectedOrder.status}
+                      </p>
+                    </div>
+                  </div>
 
-          {filteredOrders.length === 0 && (
-            <div className="py-12 text-center">
-              <p className="text-muted-foreground">No orders found</p>
-            </div>
-          )}
+                  <div className="border-t border-slate-200 pt-4">
+                    <h4 className="font-medium text-slate-800 mb-2">Order Items</h4>
+                    <div className="space-y-2">
+                      {selectedOrder.items.map((item, i) => (
+                        <div key={i} className="flex justify-between text-sm">
+                          <span className="text-slate-600">
+                            {item.name} x{item.quantity}
+                          </span>
+                          <span className="text-slate-800">
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 flex justify-between border-t border-slate-200 pt-4">
+                      <span className="font-medium text-slate-800">Total</span>
+                      <span className="font-bold text-slate-800">
+                        ${selectedOrder.total.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
         </div>
-
-        {/* Order Details Dialog */}
-        <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-          <DialogContent className="bg-card border-border">
-            <DialogHeader>
-              <DialogTitle className="text-card-foreground">
-                Order {selectedOrder?.id}
-              </DialogTitle>
-            </DialogHeader>
-            {selectedOrder && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Customer</span>
-                    <p className="font-medium text-card-foreground">{selectedOrder.customer}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Location</span>
-                    <p className="font-medium text-card-foreground">{selectedOrder.location}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Date</span>
-                    <p className="font-medium text-card-foreground">{selectedOrder.date}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Status</span>
-                    <p
-                      className={`font-medium ${
-                        selectedOrder.status === "Delivered"
-                          ? "text-emerald-500"
-                          : selectedOrder.status === "Preparing"
-                            ? "text-primary"
-                            : selectedOrder.status === "In Transit"
-                              ? "text-blue-500"
-                              : "text-destructive"
-                      }`}
-                    >
-                      {selectedOrder.status}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="border-t border-border pt-4">
-                  <h4 className="font-medium text-card-foreground mb-2">Order Items</h4>
-                  <div className="space-y-2">
-                    {selectedOrder.items.map((item, i) => (
-                      <div key={i} className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          {item.name} x{item.quantity}
-                        </span>
-                        <span className="text-card-foreground">
-                          ${(item.price * item.quantity).toFixed(2)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-4 flex justify-between border-t border-border pt-4">
-                    <span className="font-medium text-card-foreground">Total</span>
-                    <span className="font-bold text-card-foreground">
-                      ${selectedOrder.total.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
       </main>
     </div>
   );

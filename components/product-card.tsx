@@ -31,7 +31,7 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl bg-card transition-all hover:shadow-lg">
+    <div className="group relative overflow-hidden rounded-2xl bg-white shadow-sm transition-all hover:shadow-md">
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
           src={product.image || "/placeholder.svg"}
@@ -49,13 +49,13 @@ export function ProductCard({ product }: ProductCardProps) {
       </div>
 
       <div className="p-4">
-        <h3 className="font-semibold text-card-foreground">{product.name}</h3>
-        <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+        <h3 className="font-semibold text-slate-800">{product.name}</h3>
+        <p className="mt-1 text-sm text-slate-500 line-clamp-2">
           {product.description}
         </p>
 
         <div className="mt-4 flex items-center justify-between">
-          <span className="text-lg font-bold text-primary">
+          <span className="text-lg font-bold text-yellow-600">
             ${product.price.toFixed(2)}
           </span>
           <Button

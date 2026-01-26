@@ -1,68 +1,76 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MapPin, Clock, Package, Check, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { MapPin, CheckCircle2 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { CartProvider, useCart } from "@/lib/cart-context";
-import { campusLocations } from "@/lib/products";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+
+const deliveryLocations = [
+  "Student Activity Center",
+  "Library",
+  "Pacer Commons",
+  "Business Building",
+  "Science Building",
+  "Arts Center",
+  "Gym",
+  "Nursing Building",
+];
 
 function CheckoutContent() {
   const router = useRouter();
-  const { items, totalPrice, updateQuantity, removeItem, clearCart } = useCart();
-  const [location, setLocation] = useState("");
+  const { items, totalPrice, clearCart } = useCart();
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [orderId, setOrderId] = useState("");
 
-  const handlePlaceOrder = async () => {
-    if (!location) {
-      alert("Please select a delivery location");
+  const handleSubmit = async () => {
+    if (!selectedLocation || !name || !phone) {
+      alert("Please fill in all required fields");
       return;
     }
-    setLoading(true);
+
+    setIsSubmitting(true);
+    // Simulate order submission
     await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    const newOrderId = `#${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+    setOrderId(newOrderId);
     setOrderPlaced(true);
     clearCart();
+    setIsSubmitting(false);
   };
 
   if (orderPlaced) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <main className="container mx-auto px-4 py-16">
-          <div className="mx-auto max-w-md text-center">
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/20">
-              <Check className="h-10 w-10 text-emerald-500" />
-            </div>
-            <h1 className="mt-6 text-3xl font-bold text-foreground">Order Placed!</h1>
-            <p className="mt-4 text-muted-foreground">
-              Your order is being prepared and will be delivered to {location} in approximately 10
-              minutes.
-            </p>
-            <div className="mt-8 flex flex-col gap-4">
-              <Link href="/orders">
-                <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                  Track Your Order
-                </Button>
-              </Link>
-              <Link href="/shop">
-                <Button variant="outline" className="w-full bg-transparent">
-                  Continue Shopping
-                </Button>
-              </Link>
+        <main className="bg-slate-50 min-h-screen">
+          <div className="container mx-auto px-4 py-16">
+            <div className="mx-auto max-w-md text-center">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+                <CheckCircle2 className="h-10 w-10 text-green-600" />
+              </div>
+              <h1 className="mt-6 text-3xl font-bold text-slate-800">Order Placed!</h1>
+              <p className="mt-2 text-slate-500">Your order {orderId} is being prepared</p>
+              <p className="mt-4 text-sm text-slate-500">
+                Delivering to: <span className="font-medium text-slate-700">{selectedLocation}</span>
+              </p>
+              <Button
+                className="mt-8 bg-[#1e3a5f] text-white hover:bg-[#1e3a5f]/90"
+                onClick={() => router.push("/shop")}
+              >
+                Continue Shopping
+              </Button>
             </div>
           </div>
         </main>
@@ -72,209 +80,139 @@ function CheckoutContent() {
   }
 
   if (items.length === 0) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <main className="container mx-auto px-4 py-16">
-          <div className="mx-auto max-w-md text-center">
-            <ShoppingBag className="mx-auto h-20 w-20 text-muted-foreground/50" />
-            <h1 className="mt-6 text-3xl font-bold text-foreground">Your cart is empty</h1>
-            <p className="mt-4 text-muted-foreground">
-              Add some items from the shop to get started
-            </p>
-            <Link href="/shop">
-              <Button className="mt-8 bg-primary text-primary-foreground hover:bg-primary/90">
-                Browse Products
-              </Button>
-            </Link>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
+    router.push("/cart");
+    return null;
   }
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-black text-foreground">CHECKOUT</h1>
+      <main className="bg-slate-50 min-h-screen">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-4xl font-black text-slate-800">CHECKOUT</h1>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-3">
-          {/* Delivery Form */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Delivery Location Card */}
-            <div className="rounded-2xl bg-card p-6">
-              <div className="flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-primary" />
-                <h2 className="text-lg font-semibold text-card-foreground">Delivery Location</h2>
+          <div className="mt-8 grid gap-8 lg:grid-cols-3">
+            {/* Checkout Form */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Delivery Location */}
+              <div className="rounded-2xl bg-white p-6 shadow-sm">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-slate-800">
+                  <MapPin className="h-5 w-5 text-yellow-500" />
+                  Select Delivery Location
+                </h2>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {deliveryLocations.map((location) => (
+                    <button
+                      key={location}
+                      onClick={() => setSelectedLocation(location)}
+                      type="button"
+                      className={cn(
+                        "rounded-xl border-2 p-4 text-left transition-all",
+                        selectedLocation === location
+                          ? "border-yellow-500 bg-yellow-50"
+                          : "border-slate-200 bg-white hover:border-slate-300"
+                      )}
+                    >
+                      <span className={cn(
+                        "font-medium",
+                        selectedLocation === location ? "text-yellow-700" : "text-slate-700"
+                      )}>
+                        {location}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="mt-4 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="location">Campus Location *</Label>
-                  <Select value={location} onValueChange={setLocation}>
-                    <SelectTrigger className="bg-background border-border">
-                      <SelectValue placeholder="Select your location" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {campusLocations.map((loc) => (
-                        <SelectItem key={loc} value={loc}>
-                          {loc}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              {/* Contact Details */}
+              <div className="rounded-2xl bg-white p-6 shadow-sm">
+                <h2 className="text-lg font-bold text-slate-800">Contact Details</h2>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label className="text-slate-700">Full Name *</Label>
+                    <Input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="John Doe"
+                      className="bg-white border-slate-200 text-slate-800"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-slate-700">Phone Number *</Label>
+                    <Input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="(803) 555-0123"
+                      className="bg-white border-slate-200 text-slate-800"
+                    />
+                  </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="notes">Delivery Notes (Optional)</Label>
-                  <Textarea
-                    id="notes"
-                    placeholder="E.g., Room number, building entrance, landmarks..."
+                <div className="mt-4 space-y-2">
+                  <Label className="text-slate-700">Special Instructions (Optional)</Label>
+                  <Input
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="bg-background border-border resize-none"
-                    rows={3}
+                    placeholder="e.g., Call me when you arrive"
+                    className="bg-white border-slate-200 text-slate-800"
                   />
                 </div>
               </div>
             </div>
 
-            {/* 10-Minute Delivery Card */}
-            <div className="rounded-2xl bg-primary/20 p-6">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary">
-                  <Clock className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">10-Minute Delivery</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Your order will be delivered from Pacer Market directly to your campus location.
-                    Pay with cash when your delivery arrives.
-                  </p>
-                </div>
-              </div>
-            </div>
+            {/* Order Summary */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-24 rounded-2xl bg-white p-6 shadow-sm">
+                <h2 className="text-lg font-bold text-slate-800">Order Summary</h2>
 
-            {/* Customer Information Card */}
-            <div className="rounded-2xl bg-card p-6">
-              <div className="flex items-center gap-3">
-                <Package className="h-5 w-5 text-primary" />
-                <h2 className="text-lg font-semibold text-card-foreground">Customer Information</h2>
-              </div>
-
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <div>
-                  <span className="text-sm text-muted-foreground">Name</span>
-                  <p className="font-medium text-card-foreground">Guest User</p>
-                </div>
-                <div>
-                  <span className="text-sm text-muted-foreground">Email</span>
-                  <p className="font-medium text-card-foreground">guest@usca.edu</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Cart Items */}
-            <div className="rounded-2xl bg-card p-6">
-              <h2 className="text-lg font-semibold text-card-foreground">Cart Items</h2>
-              <div className="mt-4 divide-y divide-border">
-                {items.map((item) => (
-                  <div key={item.id} className="flex items-center gap-4 py-4">
-                    <img
-                      src={item.image || "/placeholder.svg"}
-                      alt={item.name}
-                      className="h-16 w-16 rounded-lg object-cover"
-                    />
-                    <div className="flex-1">
-                      <h3 className="font-medium text-card-foreground">{item.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        ${item.price.toFixed(2)} each
-                      </p>
+                <div className="mt-4 divide-y divide-slate-100">
+                  {items.map((item) => (
+                    <div key={item.id} className="flex items-center gap-3 py-3">
+                      <img
+                        src={item.image || "/placeholder.svg"}
+                        alt={item.name}
+                        className="h-12 w-12 rounded-lg object-cover"
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-slate-800">{item.name}</p>
+                        <p className="text-sm text-slate-500">Qty: {item.quantity}</p>
+                      </div>
+                      <span className="font-medium text-slate-800">
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8 bg-transparent"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                      <span className="w-8 text-center font-medium">{item.quantity}</span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8 bg-transparent"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={() => removeItem(item.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 space-y-2 border-t border-slate-200 pt-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Subtotal</span>
+                    <span className="text-slate-800">${totalPrice.toFixed(2)}</span>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Delivery</span>
+                    <span className="font-medium text-green-600">FREE</span>
+                  </div>
+                </div>
 
-          {/* Order Summary */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24 rounded-2xl bg-card p-6">
-              <h2 className="text-lg font-semibold text-card-foreground">Order Summary</h2>
-
-              <div className="mt-4 space-y-3">
-                {items.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {item.name} x{item.quantity}
-                    </span>
-                    <span className="text-card-foreground">
-                      ${(item.price * item.quantity).toFixed(2)}
+                <div className="mt-4 border-t border-slate-200 pt-4">
+                  <div className="flex justify-between">
+                    <span className="text-lg font-semibold text-slate-800">Total</span>
+                    <span className="text-lg font-bold text-slate-800">
+                      ${totalPrice.toFixed(2)}
                     </span>
                   </div>
-                ))}
-              </div>
+                  <p className="mt-1 text-sm text-slate-500">Cash on Delivery</p>
+                </div>
 
-              <div className="mt-4 border-t border-border pt-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="text-card-foreground">${totalPrice.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Delivery</span>
-                  <span className="font-medium text-emerald-500">FREE</span>
-                </div>
+                <Button
+                  className="mt-6 w-full bg-yellow-500 text-slate-900 hover:bg-yellow-400 font-semibold"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Placing Order..." : "Place Order"}
+                </Button>
               </div>
-
-              <div className="mt-4 border-t border-border pt-4">
-                <div className="flex justify-between">
-                  <span className="text-lg font-semibold text-card-foreground">Total</span>
-                  <span className="text-lg font-bold text-card-foreground">
-                    ${totalPrice.toFixed(2)}
-                  </span>
-                </div>
-                <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="h-4 w-4 text-emerald-500" />
-                  Cash on Delivery
-                </div>
-              </div>
-
-              <Button
-                className="mt-6 w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                onClick={handlePlaceOrder}
-                disabled={loading}
-              >
-                {loading ? "Placing Order..." : "Place Order"}
-              </Button>
             </div>
           </div>
         </div>
