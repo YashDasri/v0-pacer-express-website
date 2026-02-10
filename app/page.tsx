@@ -13,7 +13,7 @@ export default function HomePage() {
         <Navbar />
         <main>
           <HeroSection />
-          
+
           {/* How It Works Section */}
           <section className="py-16 lg:py-24">
             <div className="container mx-auto px-4">
@@ -31,9 +31,12 @@ export default function HomePage() {
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/20">
                     <span className="text-2xl font-bold text-primary">1</span>
                   </div>
-                  <h3 className="mt-4 text-xl font-semibold text-foreground">Browse & Select</h3>
+                  <h3 className="mt-4 text-xl font-semibold text-foreground">
+                    Browse & Select
+                  </h3>
                   <p className="mt-2 text-muted-foreground">
-                    Explore snacks, groceries, academic supplies, and daily essentials from Pacer Market
+                    Explore snacks, groceries, academic supplies, and daily
+                    essentials from Pacer Market
                   </p>
                 </div>
 
@@ -41,7 +44,9 @@ export default function HomePage() {
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/20">
                     <span className="text-2xl font-bold text-primary">2</span>
                   </div>
-                  <h3 className="mt-4 text-xl font-semibold text-foreground">Choose Location</h3>
+                  <h3 className="mt-4 text-xl font-semibold text-foreground">
+                    Choose Location
+                  </h3>
                   <p className="mt-2 text-muted-foreground">
                     Select your delivery location anywhere on the USCA campus
                   </p>
@@ -51,7 +56,9 @@ export default function HomePage() {
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/20">
                     <span className="text-2xl font-bold text-primary">3</span>
                   </div>
-                  <h3 className="mt-4 text-xl font-semibold text-foreground">Receive in 10 Min</h3>
+                  <h3 className="mt-4 text-xl font-semibold text-foreground">
+                    Receive in 10 Min
+                  </h3>
                   <p className="mt-2 text-muted-foreground">
                     Your order is delivered straight to your door in just 10 minutes
                   </p>
@@ -69,7 +76,8 @@ export default function HomePage() {
                     Why Choose Pacer Express?
                   </h2>
                   <p className="mt-4 text-lg text-muted-foreground">
-                    Designed exclusively for the USCA community, we make campus life easier.
+                    Designed exclusively for the USCA community, we make campus life
+                    easier.
                   </p>
 
                   <div className="mt-8 space-y-6">
@@ -78,7 +86,9 @@ export default function HomePage() {
                         <Zap className="h-6 w-6 text-primary" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-foreground">Lightning Fast</h3>
+                        <h3 className="font-semibold text-foreground">
+                          Lightning Fast
+                        </h3>
                         <p className="mt-1 text-muted-foreground">
                           10-minute delivery guarantee to any campus location
                         </p>
@@ -90,7 +100,9 @@ export default function HomePage() {
                         <Shield className="h-6 w-6 text-primary" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-foreground">Campus Exclusive</h3>
+                        <h3 className="font-semibold text-foreground">
+                          Campus Exclusive
+                        </h3>
                         <p className="mt-1 text-muted-foreground">
                           Built specifically for USCA students, faculty, and staff
                         </p>
@@ -102,7 +114,9 @@ export default function HomePage() {
                         <Clock className="h-6 w-6 text-primary" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-foreground">Cash on Delivery</h3>
+                        <h3 className="font-semibold text-foreground">
+                          Cash on Delivery
+                        </h3>
                         <p className="mt-1 text-muted-foreground">
                           Pay when your order arrives - no prepayment required
                         </p>
@@ -112,7 +126,10 @@ export default function HomePage() {
 
                   <div className="mt-8">
                     <Link href="/shop">
-                      <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
+                      <Button
+                        size="lg"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
+                      >
                         Start Shopping Now
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
@@ -139,8 +156,8 @@ export default function HomePage() {
                   Ready to Get Started?
                 </h2>
                 <p className="mx-auto mt-4 max-w-xl text-lg text-slate-300">
-                  Join the Pacer Express community and never walk to the store again. Free delivery
-                  on all orders within the USCA campus.
+                  Join the Pacer Express community and never walk to the store
+                  again. Free delivery on all orders within the USCA campus.
                 </p>
                 <div className="mt-8 flex flex-wrap justify-center gap-4">
                   <Link href="/signup">
