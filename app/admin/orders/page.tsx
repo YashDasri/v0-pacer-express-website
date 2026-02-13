@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { CartProvider } from "@/lib/cart-context";
 import { Eye, Filter } from "lucide-react";
@@ -95,9 +95,41 @@ const mockOrders: Order[] = [
 ];
 
 function OrdersContent() {
-  const [orders, setOrders] = useState<Order[]>(mockOrders);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  // Load orders from localStorage on mount. Fallback to mockOrders if none.
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("orders") || "null");
+      if (Array.isArray(saved) && saved.length > 0) {
+        setOrders(saved);
+      } else {
+        setOrders(mockOrders);
+      }
+    } catch (err) {
+      console.error("Failed to load orders from localStorage:", err);
+      setOrders(mockOrders);
+    }
+  }, []);
+
+  // Listen for storage events so admin UI updates when orders change in other tabs/windows
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "orders") {
+        try {
+          const newOrders = JSON.parse(e.newValue || "[]");
+          if (Array.isArray(newOrders)) setOrders(newOrders);
+        } catch (err) {
+          console.error("Failed to parse orders from storage event:", err);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
 
   const filteredOrders =
     filter === "all" ? orders : orders.filter((o) => o.status.toLowerCase() === filter);
@@ -110,6 +142,17 @@ function OrdersContent() {
       setSelectedOrder((prev) => (prev ? { ...prev, status: newStatus } : null));
     }
   };
+
+  // Persist order status changes to localStorage
+  useEffect(() => {
+    try {
+      if (orders.length > 0) {
+        localStorage.setItem("orders", JSON.stringify(orders));
+      }
+    } catch (err) {
+      console.error("Failed to persist orders to localStorage:", err);
+    }
+  }, [orders]);
 
   return (
     <div className="min-h-screen bg-background">

@@ -2,6 +2,7 @@
 
 import { Navbar } from "@/components/navbar";
 import { CartProvider } from "@/lib/cart-context";
+import { useEffect, useState } from "react";
 import { Package, ShoppingBag, DollarSign, Clock, TrendingUp, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -60,6 +61,36 @@ const recentOrders = [
 ];
 
 function AdminContent() {
+  const [ordersState, setOrdersState] = useState<any[]>([]);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("orders") || "null");
+      if (Array.isArray(saved) && saved.length > 0) {
+        setOrdersState(saved);
+      } else {
+        setOrdersState(recentOrders);
+      }
+    } catch (err) {
+      console.error("Failed to load orders for admin dashboard:", err);
+      setOrdersState(recentOrders);
+    }
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "orders") {
+        try {
+          const newOrders = JSON.parse(e.newValue || "[]");
+          if (Array.isArray(newOrders)) setOrdersState(newOrders);
+        } catch (err) {
+          console.error("Failed to parse orders from storage event:", err);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -114,16 +145,12 @@ function AdminContent() {
                     </tr>
                   </thead>
                   <tbody>
-                    {recentOrders.map((order) => (
+                    {ordersState.slice(0, 10).map((order: any) => (
                       <tr key={order.id} className="border-b border-border last:border-0">
-                        <td className="py-4 text-sm font-medium text-card-foreground">
-                          {order.id}
-                        </td>
-                        <td className="py-4 text-sm text-muted-foreground">{order.customer}</td>
-                        <td className="py-4 text-sm text-muted-foreground">{order.location}</td>
-                        <td className="py-4 text-sm text-card-foreground">
-                          ${order.total.toFixed(2)}
-                        </td>
+                        <td className="py-4 text-sm font-medium text-card-foreground">{order.id}</td>
+                        <td className="py-4 text-sm text-muted-foreground">{order.customer || 'Guest'}</td>
+                        <td className="py-4 text-sm text-muted-foreground">{order.location || (order.items && order.items.length ? order.items[0].name : '')}</td>
+                        <td className="py-4 text-sm text-card-foreground">${(order.total || 0).toFixed(2)}</td>
                         <td className="py-4">
                           <span
                             className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
@@ -137,7 +164,7 @@ function AdminContent() {
                             {order.status}
                           </span>
                         </td>
-                        <td className="py-4 text-sm text-muted-foreground">{order.time}</td>
+                        <td className="py-4 text-sm text-muted-foreground">{order.date || order.time || '-'}</td>
                       </tr>
                     ))}
                   </tbody>
