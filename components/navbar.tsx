@@ -105,6 +105,20 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background p-4">
           <nav className="flex flex-col gap-4">
+            <div className="flex items-center justify-end">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  if (!mounted) return;
+                  const next = resolvedTheme === "dark" ? "light" : "dark";
+                  setTheme(next);
+                }}
+                aria-label="Toggle theme"
+              >
+                {mounted ? (resolvedTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />) : <Moon className="h-5 w-5" />}
+              </Button>
+            </div>
             <Link
               href="/shop"
               className="text-sm font-medium text-foreground hover:text-primary"
@@ -135,7 +149,10 @@ export function Navbar() {
 
 function AdminNavbar() {
   const pathname = usePathname();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
+  useEffect(() => setMounted(true), []);
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -184,8 +201,17 @@ function AdminNavbar() {
               View Store
             </Button>
           </Link>
-          <Button variant="ghost" size="icon">
-            <Moon className="h-5 w-5" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              if (!mounted) return;
+              const next = resolvedTheme === "dark" ? "light" : "dark";
+              setTheme(next);
+            }}
+            aria-label="Toggle theme"
+          >
+            {mounted ? (resolvedTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />) : <Moon className="h-5 w-5" />}
           </Button>
           <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-muted-foreground" />
