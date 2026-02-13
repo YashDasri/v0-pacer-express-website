@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { CartProvider, useCart } from "@/lib/cart-context";
 import { campusLocations } from "@/lib/products";
+import { PaymentSection, type PaymentMethod } from "@/components/payment-section";
 
 function CheckoutContent() {
   const router = useRouter();
@@ -26,16 +27,41 @@ function CheckoutContent() {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
 
-  const handlePlaceOrder = async () => {
+  const handleProcessPayment = async (method: PaymentMethod): Promise<boolean> => {
     if (!location) {
       alert("Please select a delivery location");
-      return;
+      return false;
     }
-    setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    // Simulate payment processing
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // In production, you would integrate with actual payment gateway
+    console.log(`Processing ${method} payment of $${totalPrice.toFixed(2)}`);
+    // build order object
+    const order = {
+      id: `#${Math.random().toString(36).slice(2, 10).toUpperCase()}`,
+      customer: "Guest User",
+      location,
+      total: totalPrice,
+      status: "Preparing",
+      date: new Date().toLocaleString(),
+      items: items.map((it) => ({ id: it.id, name: it.name, quantity: it.quantity, price: it.price })),
+    };
+
+    try {
+      const existing = JSON.parse(localStorage.getItem("orders") || "[]");
+      existing.unshift(order);
+      localStorage.setItem("orders", JSON.stringify(existing));
+    } catch (err) {
+      console.error("Failed to save order:", err);
+    }
+
     setOrderPlaced(true);
     clearCart();
+    return true;
   };
 
   if (orderPlaced) {
@@ -151,7 +177,7 @@ function CheckoutContent() {
                   <h3 className="font-semibold text-foreground">10-Minute Delivery</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Your order will be delivered from Pacer Market directly to your campus location.
-                    Pay with cash when your delivery arrives.
+                    Choose your payment method below.
                   </p>
                 </div>
               </div>
@@ -224,6 +250,15 @@ function CheckoutContent() {
                 ))}
               </div>
             </div>
+
+            {/* Payment Section */}
+            <PaymentSection
+              totalPrice={totalPrice}
+              selectedMethod={selectedPaymentMethod}
+              onPaymentMethodChange={setSelectedPaymentMethod}
+              onProcessPayment={handleProcessPayment}
+              isProcessing={loading}
+            />
           </div>
 
           {/* Order Summary */}
@@ -264,17 +299,9 @@ function CheckoutContent() {
                 </div>
                 <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
                   <Check className="h-4 w-4 text-emerald-500" />
-                  Cash on Delivery
+                  Multiple Payment Options Available
                 </div>
               </div>
-
-              <Button
-                className="mt-6 w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                onClick={handlePlaceOrder}
-                disabled={loading}
-              >
-                {loading ? "Placing Order..." : "Place Order"}
-              </Button>
             </div>
           </div>
         </div>

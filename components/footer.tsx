@@ -38,6 +38,11 @@ export function Footer() {
                   My Orders
                 </Link>
               </li>
+              <li>
+                <Link href="/admin" className="text-sm text-muted-foreground hover:text-primary">
+                  Admin Login
+                </Link>
+              </li>
             </ul>
           </div>
 

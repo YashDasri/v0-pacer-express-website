@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingCart, User, Moon, Sun, Menu, X, Package } from "lucide-react";
-import { useState } from "react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-context";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,10 @@ export function Navbar() {
   const pathname = usePathname();
   const { totalItems } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   const isAdmin = pathname.startsWith("/admin");
 
@@ -44,8 +49,23 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="hidden md:flex">
-            <Moon className="h-5 w-5" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden md:flex"
+            onClick={() => {
+              if (!mounted) return;
+              const next = resolvedTheme === "dark" ? "light" : "dark";
+              setTheme(next);
+            }}
+            aria-label="Toggle theme"
+          >
+            <span
+              className={`inline-flex items-center justify-center transform transition-transform duration-300 ease-in-out ` +
+                (mounted && resolvedTheme === "dark" ? "scale-105" : "scale-95")}
+            >
+              {mounted ? (resolvedTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />) : <Moon className="h-5 w-5" />}
+            </span>
           </Button>
 
           <Link href="/login" className="hidden md:block">

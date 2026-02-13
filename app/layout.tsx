@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -19,10 +20,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
-        {children}
-        <Analytics />
+        {/*
+          Inject a small script to apply the saved theme class before React hydration.
+          This prevents a server/client mismatch when next-themes updates the html class.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');var d=localStorage.getItem('theme-mode');var theme=t||d||'light';document.documentElement.classList.remove('light','dark');document.documentElement.classList.add(theme);}catch(e){} })()`,
+          }}
+        />
+        <ThemeProvider attribute="class" defaultTheme="system" enableColorScheme={false} enableSystem={true} storageKey="theme">
+          {children}
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   );
