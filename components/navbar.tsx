@@ -18,6 +18,17 @@ export function Navbar() {
 
   useEffect(() => setMounted(true), []);
 
+  // determine theme after mount to avoid hydration mismatch
+  const isLight = mounted ? resolvedTheme === "light" : undefined;
+  const headerClassName = cn(
+    "sticky top-0 z-50 w-full border-b",
+    mounted
+      ? isLight
+        ? "border-gray-200 bg-white/95 text-gray-900 supports-[backdrop-filter]:bg-white/60"
+        : "border-border bg-background/95 supports-[backdrop-filter]:bg-background/60"
+      : "border-border bg-background/95 supports-[backdrop-filter]:bg-background/60"
+  );
+
   const isAdmin = pathname.startsWith("/admin");
 
   if (isAdmin) {
@@ -25,14 +36,21 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className={headerClassName}>
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
               <Package className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-foreground">PACER EXPRESS</span>
+            <span
+              className={cn(
+                "text-xl font-bold",
+                mounted ? (isLight ? "text-gray-900" : "text-foreground") : "text-foreground"
+              )}
+            >
+              PACER EXPRESS
+            </span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
@@ -40,7 +58,13 @@ export function Navbar() {
               href="/shop"
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary",
-                pathname === "/shop" ? "text-primary" : "text-foreground"
+                pathname === "/shop"
+                  ? "text-primary"
+                  : mounted
+                  ? isLight
+                    ? "text-gray-700"
+                    : "text-foreground"
+                  : "text-foreground"
               )}
             >
               Shop
@@ -105,20 +129,6 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background p-4">
           <nav className="flex flex-col gap-4">
-            <div className="flex items-center justify-end">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  if (!mounted) return;
-                  const next = resolvedTheme === "dark" ? "light" : "dark";
-                  setTheme(next);
-                }}
-                aria-label="Toggle theme"
-              >
-                {mounted ? (resolvedTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />) : <Moon className="h-5 w-5" />}
-              </Button>
-            </div>
             <Link
               href="/shop"
               className="text-sm font-medium text-foreground hover:text-primary"
@@ -149,10 +159,7 @@ export function Navbar() {
 
 function AdminNavbar() {
   const pathname = usePathname();
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -201,17 +208,8 @@ function AdminNavbar() {
               View Store
             </Button>
           </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              if (!mounted) return;
-              const next = resolvedTheme === "dark" ? "light" : "dark";
-              setTheme(next);
-            }}
-            aria-label="Toggle theme"
-          >
-            {mounted ? (resolvedTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />) : <Moon className="h-5 w-5" />}
+          <Button variant="ghost" size="icon">
+            <Moon className="h-5 w-5" />
           </Button>
           <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-muted-foreground" />
