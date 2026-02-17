@@ -31,7 +31,7 @@ export default function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem('theme');var d=localStorage.getItem('theme-mode');var theme=t||d||'light';document.documentElement.classList.remove('light','dark');document.documentElement.classList.add(theme);}catch(e){} })()`,
           }}
         />
-        <ThemeProvider attribute="class" defaultTheme="system" enableColorScheme={false} enableSystem={true} storageKey="theme">
+  <ThemeProvider attribute="class" defaultTheme="light" enableColorScheme={false} enableSystem={false} storageKey="theme">
           {children}
           <Analytics />
         </ThemeProvider>
