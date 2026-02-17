@@ -159,6 +159,10 @@ export function Navbar() {
 
 function AdminNavbar() {
   const pathname = usePathname();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
@@ -208,8 +212,32 @@ function AdminNavbar() {
               View Store
             </Button>
           </Link>
-          <Button variant="ghost" size="icon">
-            <Moon className="h-5 w-5" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              if (!mounted) return;
+              const next = resolvedTheme === "dark" ? "light" : "dark";
+              setTheme(next);
+            }}
+            aria-label="Toggle theme"
+          >
+            <span
+              className={
+                `inline-flex items-center justify-center transform transition-transform duration-300 ease-in-out ` +
+                (mounted && resolvedTheme === "dark" ? "scale-105" : "scale-95")
+              }
+            >
+              {mounted ? (
+                resolvedTheme === "dark" ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </span>
           </Button>
           <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-muted-foreground" />
