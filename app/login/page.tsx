@@ -31,10 +31,8 @@ export default function LoginPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary">
             <Package className="h-8 w-8 text-primary-foreground" />
           </div>
-          <h1 className="mt-4 text-2xl font-bold text-foreground">Welcome Back</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Sign in to your Pacer Express account
-          </p>
+          <h1 className="mt-4 text-2xl font-bold text-foreground">Pacer Admin</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Sign in to the Pacer Admin portal</p>
         </div>
 
         <Button
