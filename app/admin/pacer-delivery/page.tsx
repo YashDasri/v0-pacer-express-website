@@ -33,6 +33,35 @@ function DeliveryContent() {
   useEffect(() => {
     setRole(localStorage.getItem("role"));
   }, []);
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("orders") || "null");
+      if (Array.isArray(saved) && saved.length > 0) {
+        setOrders(saved);
+      } else {
+        setOrders([]);
+      }
+    } catch (err) {
+      console.error("Failed to load orders for delivery page:", err);
+      setOrders([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "orders") {
+        try {
+          const newOrders = JSON.parse(e.newValue || "[]");
+          if (Array.isArray(newOrders)) setOrders(newOrders);
+        } catch (err) {
+          console.error("Failed to parse orders from storage event:", err);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
 
   // Simple auth stub: if not a deliverer, show quick login to become one
   if (role !== "deliverer") {
@@ -65,36 +94,6 @@ function DeliveryContent() {
       </div>
     );
   }
-
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem("orders") || "null");
-      if (Array.isArray(saved) && saved.length > 0) {
-        setOrders(saved);
-      } else {
-        setOrders([]);
-      }
-    } catch (err) {
-      console.error("Failed to load orders for delivery page:", err);
-      setOrders([]);
-    }
-  }, []);
-
-  useEffect(() => {
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === "orders") {
-        try {
-          const newOrders = JSON.parse(e.newValue || "[]");
-          if (Array.isArray(newOrders)) setOrders(newOrders);
-        } catch (err) {
-          console.error("Failed to parse orders from storage event:", err);
-        }
-      }
-    };
-
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
-  }, []);
 
   // For this mock, assume current delivery partner id is 'deliverer-1'
   const currentDelivererId = "deliverer-1";
