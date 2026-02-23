@@ -17,9 +17,7 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
-  useEffect(() => setMounted(true), []);
 
-  // determine theme after mount to avoid hydration mismatch
   const isLight = mounted ? resolvedTheme === "light" : undefined;
   const headerClassName = cn(
     "sticky top-0 z-50 w-full border-b",
@@ -30,11 +28,8 @@ export function Navbar() {
       : "border-border bg-background/95 supports-[backdrop-filter]:bg-background/60"
   );
 
-  const isAdmin = pathname.startsWith("/admin");
-
-  if (isAdmin) {
-    return <AdminNavbar />;
-  }
+  const isAdmin = pathname?.startsWith("/admin");
+  if (isAdmin) return <AdminNavbar />;
 
   return (
     <header className={headerClassName}>
@@ -100,9 +95,7 @@ export function Navbar() {
           </Link>
 
           <Link href="/signup" className="hidden md:block">
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-              Sign Up
-            </Button>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Sign Up</Button>
           </Link>
 
           <Link href="/checkout" className="relative">
@@ -116,12 +109,7 @@ export function Navbar() {
             </Button>
           </Link>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
+          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
@@ -130,25 +118,13 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background p-4">
           <nav className="flex flex-col gap-4">
-            <Link
-              href="/shop"
-              className="text-sm font-medium text-foreground hover:text-primary"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <Link href="/shop" className="text-sm font-medium text-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
               Shop
             </Link>
-            <Link
-              href="/login"
-              className="text-sm font-medium text-foreground hover:text-primary"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <Link href="/login" className="text-sm font-medium text-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
               Login
             </Link>
-            <Link
-              href="/signup"
-              className="text-sm font-medium text-foreground hover:text-primary"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <Link href="/signup" className="text-sm font-medium text-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
               Sign Up
             </Link>
           </nav>
@@ -162,72 +138,60 @@ function AdminNavbar() {
   const pathname = usePathname();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [role, setRole] = useState<string | null>(null);
-
-  useEffect(() => {
-    try {
-      setRole(localStorage.getItem("role"));
-    } catch (err) {
-      setRole(null);
-    }
-  }, []);
 
   useEffect(() => setMounted(true), []);
+
+  const isDelivery = pathname === "/admin/pacer-delivery" || pathname?.startsWith("/admin/pacer-delivery/");
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-8">
-          <Link href="/admin" className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-              <Package className="h-5 w-5 text-primary-foreground" />
+          {isDelivery ? (
+            <div className="flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
+                <Package className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div>
+                <span className="text-xl font-bold text-foreground">PACER EXPRESS</span>
+                <span className="ml-2 text-xs font-medium text-primary">DELIVERY</span>
+              </div>
             </div>
-            <div>
-              <span className="text-xl font-bold text-foreground">PACER EXPRESS</span>
-              <span className="ml-2 text-xs font-medium text-primary">ADMIN</span>
-            </div>
-          </Link>
+          ) : (
+            <Link href="/admin" className="flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
+                <Package className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div>
+                <span className="text-xl font-bold text-foreground">PACER EXPRESS</span>
+                <span className="ml-2 text-xs font-medium text-primary">ADMIN</span>
+              </div>
+            </Link>
+          )}
 
-          <nav className="hidden md:flex items-center gap-2">
-            <Link href="/admin">
-              <Button
-                variant={pathname === "/admin" ? "secondary" : "ghost"}
-                className="text-sm"
-              >
-                Dashboard
-              </Button>
-            </Link>
-            <Link href="/admin/products">
-              <Button
-                variant={pathname === "/admin/products" ? "secondary" : "ghost"}
-                className="text-sm"
-              >
-                Products
-              </Button>
-            </Link>
-            <Link href="/admin/orders">
-              <Button
-                variant={pathname === "/admin/orders" ? "secondary" : "ghost"}
-                className="text-sm"
-              >
-                Orders
-              </Button>
-            </Link>
-            {role === "deliverer" && (
-              <Link href="/admin/pacer-delivery">
-                <Button
-                  variant={pathname === "/admin/pacer-delivery" ? "secondary" : "ghost"}
-                  className="text-sm"
-                >
-                  Pacer Delivery
+          {!isDelivery && (
+            <nav className="hidden md:flex items-center gap-2">
+              <Link href="/admin">
+                <Button variant={pathname === "/admin" ? "secondary" : "ghost"} className="text-sm">
+                  Dashboard
                 </Button>
               </Link>
-            )}
-          </nav>
+              <Link href="/admin/products">
+                <Button variant={pathname === "/admin/products" ? "secondary" : "ghost"} className="text-sm">
+                  Products
+                </Button>
+              </Link>
+              <Link href="/admin/orders">
+                <Button variant={pathname === "/admin/orders" ? "secondary" : "ghost"} className="text-sm">
+                  Orders
+                </Button>
+              </Link>
+            </nav>
+          )}
         </div>
 
         <div className="flex items-center gap-4">
-          <Link href="/shop">
+          <Link href="/">
             <Button variant="outline" size="sm">
               View Store
             </Button>
@@ -242,21 +206,8 @@ function AdminNavbar() {
             }}
             aria-label="Toggle theme"
           >
-            <span
-              className={
-                `inline-flex items-center justify-center transform transition-transform duration-300 ease-in-out ` +
-                (mounted && resolvedTheme === "dark" ? "scale-105" : "scale-95")
-              }
-            >
-              {mounted ? (
-                resolvedTheme === "dark" ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                )
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
+            <span className={`inline-flex items-center justify-center transform transition-transform duration-300 ease-in-out ` + (mounted && resolvedTheme === "dark" ? "scale-105" : "scale-95")}>
+              {mounted ? (resolvedTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />) : <Moon className="h-5 w-5" />}
             </span>
           </Button>
           <div className="flex items-center gap-2">

@@ -29,6 +29,9 @@ function DeliveryContent() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setRole(localStorage.getItem("role"));
@@ -63,33 +66,71 @@ function DeliveryContent() {
     return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
-  // Simple auth stub: if not a deliverer, show quick login to become one
+  // Simple auth stub: if not a deliverer, show a login form
   if (role !== "deliverer") {
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      setError(null);
+      if (username === "delivery" && password === "delivery") {
+        localStorage.setItem("role", "deliverer");
+        setRole("deliverer");
+      } else {
+        setError("Invalid username or password");
+      }
+    };
+
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-md rounded-2xl bg-card p-8 shadow-lg text-center">
-          <h2 className="text-xl font-semibold text-foreground">Delivery Partner Login (Stub)</h2>
-          <p className="mt-2 text-sm text-muted-foreground">Sign in as a delivery partner to see assigned orders.</p>
-          <div className="mt-6 flex flex-col gap-3">
-            <button
-              className="rounded bg-primary px-4 py-2 text-white"
-              onClick={() => {
-                localStorage.setItem("role", "deliverer");
-                setRole("deliverer");
-              }}
-            >
-              Sign in as Deliverer
-            </button>
-            <button
-              className="rounded border border-border px-4 py-2"
-              onClick={() => {
-                localStorage.setItem("role", "admin");
-                setRole("admin");
-              }}
-            >
-              Continue as Admin (view-only)
-            </button>
-          </div>
+        <div className="w-full max-w-md rounded-2xl bg-card p-8 shadow-lg">
+          <h2 className="text-xl font-semibold text-foreground text-center">Pacer Delivery Login</h2>
+          <p className="mt-2 text-sm text-muted-foreground text-center">Sign in with your delivery credentials</p>
+
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <div>
+              <label className="block text-sm text-muted-foreground mb-1">Login</label>
+              <input
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                placeholder="login"
+                autoComplete="username"
+                aria-label="username"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm text-muted-foreground mb-1">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                placeholder="password"
+                autoComplete="current-password"
+                aria-label="password"
+              />
+            </div>
+
+            {error && <div className="text-sm text-destructive">{error}</div>}
+
+            <div className="flex gap-3">
+              <Button type="submit" className="flex-1">
+                Sign in
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => {
+                  localStorage.setItem("role", "admin");
+                  setRole("admin");
+                }}
+              >
+                Continue as Admin
+              </Button>
+            </div>
+
+            <div className="text-xs text-muted-foreground text-center">Hint: login <span className="font-medium">delivery</span> / password <span className="font-medium">delivery</span></div>
+          </form>
         </div>
       </div>
     );
@@ -119,56 +160,70 @@ function DeliveryContent() {
           <p className="mt-2 text-muted-foreground">Orders assigned to you for delivery</p>
         </div>
 
-        <div className="rounded-2xl bg-card p-6 overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border text-left">
-                <th className="pb-4 text-sm font-medium text-muted-foreground">Order ID</th>
-                <th className="pb-4 text-sm font-medium text-muted-foreground">Location</th>
-                <th className="pb-4 text-sm font-medium text-muted-foreground">Total</th>
-                <th className="pb-4 text-sm font-medium text-muted-foreground">Status</th>
-                <th className="pb-4 text-sm font-medium text-muted-foreground">Date</th>
-                <th className="pb-4 text-sm font-medium text-muted-foreground">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {assigned.map((order) => (
-                <tr key={order.id} className="border-b border-border last:border-0">
-                  <td className="py-4 text-sm font-medium text-card-foreground">{order.id}</td>
-                  <td className="py-4 text-sm text-muted-foreground">{order.location}</td>
-                  <td className="py-4 text-sm text-card-foreground">${order.total.toFixed(2)}</td>
-                  <td className="py-4 text-sm text-card-foreground">{order.status}</td>
-                  <td className="py-4 text-sm text-muted-foreground">{order.date}</td>
-                  <td className="py-4">
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => setSelectedOrder(order)}>
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      {order.status !== "In Transit" && order.status !== "Delivered" && (
-                        <Button
-                          size="sm"
-                          onClick={() => updateOrderStatus(order.id, "In Transit")}
-                        >
-                          Mark In Transit
-                        </Button>
-                      )}
-                      {order.status !== "Delivered" && (
-                        <Button size="sm" onClick={() => updateOrderStatus(order.id, "Delivered")}>
-                          Mark Delivered
-                        </Button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="rounded-2xl bg-card p-6">
+          <div className="space-y-4">
+            {assigned.length === 0 && (
+              <div className="py-12 text-center">
+                <p className="text-muted-foreground">No assigned deliveries</p>
+              </div>
+            )}
 
-          {assigned.length === 0 && (
-            <div className="py-12 text-center">
-              <p className="text-muted-foreground">No assigned deliveries</p>
-            </div>
-          )}
+            {assigned.map((order) => (
+              <article
+                key={order.id}
+                className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start rounded-lg border border-border bg-background p-4 hover:shadow-sm transition-shadow"
+              >
+                {/* Left: id + location */}
+                <div className="md:col-span-3">
+                  <div className="text-sm font-medium text-card-foreground">{order.id}</div>
+                  <div className="text-sm text-muted-foreground mt-1">{order.location}</div>
+                  <div className="text-xs text-muted-foreground mt-2">{order.date}</div>
+                </div>
+
+                {/* Middle small: total + status badge */}
+                <div className="md:col-span-2 flex flex-col items-start md:items-start">
+                  <div className="text-sm font-medium text-card-foreground">${order.total.toFixed(2)}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{order.status}</div>
+                </div>
+
+                {/* Items */}
+                <div className="md:col-span-5">
+                  <div className="text-sm font-medium text-muted-foreground mb-2">Order Items</div>
+                  <ul className="divide-y divide-border/30">
+                    {order.items.map((item, i) => (
+                      <li key={i} className="py-1 flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground truncate pr-2">{item.name} x{item.quantity}</span>
+                        <span className="text-card-foreground pl-2">${(item.price * item.quantity).toFixed(2)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Right: select */}
+                <div className="md:col-span-2 flex flex-col items-end gap-2">
+                  <div>
+                    <select
+                      value={order.status}
+                      onChange={(e) => updateOrderStatus(order.id, e.target.value as Order["status"])}
+                      className={`rounded-md border border-border bg-background px-3 py-1 text-sm ${order.status === 'Delivered' ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      disabled={order.status === 'Delivered'}
+                      aria-label={`Delivery status for order ${order.id}`}
+                    >
+                      <option value="Preparing">Preparing</option>
+                      <option value="In Transit">In Transit</option>
+                      <option value="Delivered">Delivered</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Button variant="ghost" size="icon" onClick={() => setSelectedOrder(order)}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
 
         <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
