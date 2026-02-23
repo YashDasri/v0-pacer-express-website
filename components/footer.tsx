@@ -43,6 +43,11 @@ export function Footer() {
                   Pacer Admin
                 </Link>
               </li>
+              <li>
+                <Link href="/admin/pacer-delivery" className="text-sm text-muted-foreground hover:text-primary">
+                  Pacer Delivery
+                </Link>
+              </li>
             </ul>
           </div>
 
