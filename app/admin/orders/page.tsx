@@ -5,13 +5,7 @@ import { Navbar } from "@/components/navbar";
 import { CartProvider } from "@/lib/cart-context";
 import { Eye, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// status is view-only on the admin orders page; delivery partners update status on Pacer Delivery
 import {
   Dialog,
   DialogContent,
@@ -164,19 +158,20 @@ function OrdersContent() {
             <p className="mt-2 text-muted-foreground">Manage and track customer orders</p>
           </div>
 
-          <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-[180px] bg-card border-border">
-              <Filter className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="All Orders" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Orders</SelectItem>
-              <SelectItem value="preparing">Preparing</SelectItem>
-              <SelectItem value="in transit">In Transit</SelectItem>
-              <SelectItem value="delivered">Delivered</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Filter className="mr-2 h-4 w-4" />
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="w-[180px] bg-card border-border p-2 rounded"
+            >
+              <option value="all">All Orders</option>
+              <option value="preparing">Preparing</option>
+              <option value="in transit">In Transit</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
         </div>
 
         {/* Orders Table */}
@@ -201,32 +196,19 @@ function OrdersContent() {
                   <td className="py-4 text-sm text-muted-foreground">{order.location}</td>
                   <td className="py-4 text-sm text-card-foreground">${order.total.toFixed(2)}</td>
                   <td className="py-4">
-                    <Select
-                      value={order.status}
-                      onValueChange={(value: Order["status"]) =>
-                        updateOrderStatus(order.id, value)
-                      }
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                        order.status === "Delivered"
+                          ? "bg-emerald-500/20 text-emerald-500"
+                          : order.status === "Preparing"
+                            ? "bg-primary/20 text-primary"
+                            : order.status === "In Transit"
+                              ? "bg-blue-500/20 text-blue-500"
+                              : "bg-destructive/20 text-destructive"
+                      }`}
                     >
-                      <SelectTrigger
-                        className={`w-[130px] h-8 text-xs font-medium border-0 ${
-                          order.status === "Delivered"
-                            ? "bg-emerald-500/20 text-emerald-500"
-                            : order.status === "Preparing"
-                              ? "bg-primary/20 text-primary"
-                              : order.status === "In Transit"
-                                ? "bg-blue-500/20 text-blue-500"
-                                : "bg-destructive/20 text-destructive"
-                        }`}
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Preparing">Preparing</SelectItem>
-                        <SelectItem value="In Transit">In Transit</SelectItem>
-                        <SelectItem value="Delivered">Delivered</SelectItem>
-                        <SelectItem value="Cancelled">Cancelled</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      {order.status}
+                    </span>
                   </td>
                   <td className="py-4 text-sm text-muted-foreground">{order.date}</td>
                   <td className="py-4">

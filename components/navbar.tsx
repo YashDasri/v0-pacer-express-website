@@ -17,6 +17,7 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
+  useEffect(() => setMounted(true), []);
 
   // determine theme after mount to avoid hydration mismatch
   const isLight = mounted ? resolvedTheme === "light" : undefined;
@@ -161,6 +162,15 @@ function AdminNavbar() {
   const pathname = usePathname();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      setRole(localStorage.getItem("role"));
+    } catch (err) {
+      setRole(null);
+    }
+  }, []);
 
   useEffect(() => setMounted(true), []);
 
@@ -203,14 +213,16 @@ function AdminNavbar() {
                 Orders
               </Button>
             </Link>
-            <Link href="/admin/pacer-delivery">
-              <Button
-                variant={pathname === "/admin/pacer-delivery" ? "secondary" : "ghost"}
-                className="text-sm"
-              >
-                Pacer Delivery
-              </Button>
-            </Link>
+            {role === "deliverer" && (
+              <Link href="/admin/pacer-delivery">
+                <Button
+                  variant={pathname === "/admin/pacer-delivery" ? "secondary" : "ghost"}
+                  className="text-sm"
+                >
+                  Pacer Delivery
+                </Button>
+              </Link>
+            )}
           </nav>
         </div>
 

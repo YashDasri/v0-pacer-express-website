@@ -28,6 +28,43 @@ interface Order {
 function DeliveryContent() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    setRole(localStorage.getItem("role"));
+  }, []);
+
+  // Simple auth stub: if not a deliverer, show quick login to become one
+  if (role !== "deliverer") {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-2xl bg-card p-8 shadow-lg text-center">
+          <h2 className="text-xl font-semibold text-foreground">Delivery Partner Login (Stub)</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Sign in as a delivery partner to see assigned orders.</p>
+          <div className="mt-6 flex flex-col gap-3">
+            <button
+              className="rounded bg-primary px-4 py-2 text-white"
+              onClick={() => {
+                localStorage.setItem("role", "deliverer");
+                setRole("deliverer");
+              }}
+            >
+              Sign in as Deliverer
+            </button>
+            <button
+              className="rounded border border-border px-4 py-2"
+              onClick={() => {
+                localStorage.setItem("role", "admin");
+                setRole("admin");
+              }}
+            >
+              Continue as Admin (view-only)
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     try {
