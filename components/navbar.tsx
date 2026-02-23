@@ -203,6 +203,14 @@ function AdminNavbar() {
                 Orders
               </Button>
             </Link>
+            <Link href="/admin/pacer-delivery">
+              <Button
+                variant={pathname === "/admin/pacer-delivery" ? "secondary" : "ghost"}
+                className="text-sm"
+              >
+                Pacer Delivery
+              </Button>
+            </Link>
           </nav>
         </div>
 
