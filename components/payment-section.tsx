@@ -15,6 +15,11 @@ interface PaymentSectionProps {
   selectedMethod: PaymentMethod | null;
   onProcessPayment: (method: PaymentMethod) => Promise<boolean>;
   isProcessing?: boolean;
+  title?: string;
+  description?: string;
+  allowedMethods?: PaymentMethod[];
+  payButtonText?: string;
+  isPaid?: boolean;
 }
 
 export function PaymentSection({
@@ -23,6 +28,11 @@ export function PaymentSection({
   selectedMethod,
   onProcessPayment,
   isProcessing = false,
+  title = "Payment Method",
+  description,
+  allowedMethods = ["credit", "debit", "cash", "declining"],
+  payButtonText,
+  isPaid = false,
 }: PaymentSectionProps) {
   const [cardNumber, setCardNumber] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
@@ -61,6 +71,10 @@ export function PaymentSection({
     },
   ];
 
+  const visibleMethods = paymentMethods.filter((method) =>
+    allowedMethods.includes(method.id as PaymentMethod)
+  );
+
   const handlePayment = async () => {
     if (!selectedMethod) return;
 
@@ -94,11 +108,12 @@ export function PaymentSection({
 
   return (
     <div className="rounded-2xl bg-card p-6">
-      <h2 className="text-lg font-semibold text-card-foreground mb-6">Payment Method</h2>
+      <h2 className="text-lg font-semibold text-card-foreground mb-2">{title}</h2>
+      {description && <p className="mb-6 text-sm text-muted-foreground">{description}</p>}
 
       {/* Payment Method Selection */}
       <div className="grid grid-cols-1 gap-3 mb-6">
-        {paymentMethods.map((method) => {
+        {visibleMethods.map((method) => {
           const Icon = method.icon;
           const isSelected = selectedMethod === method.id;
 
@@ -231,10 +246,14 @@ export function PaymentSection({
       {selectedMethod && (
         <Button
           onClick={handlePayment}
-          disabled={!selectedMethod || processingPayment || isProcessing}
+          disabled={!selectedMethod || processingPayment || isProcessing || isPaid}
           className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-semibold"
         >
-          {processingPayment ? "Processing..." : `Pay with ${paymentMethods.find(m => m.id === selectedMethod)?.name}`}
+          {processingPayment
+            ? "Processing..."
+            : isPaid
+            ? "Payment Completed"
+            : payButtonText ?? `Pay with ${paymentMethods.find((m) => m.id === selectedMethod)?.name}`}
         </Button>
       )}
     </div>

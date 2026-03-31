@@ -11,10 +11,11 @@ interface ProductCardProps {
 }
 
 const categoryColors: Record<string, string> = {
-  snacks: "bg-slate-700",
-  groceries: "bg-emerald-600",
-  academic: "bg-blue-600",
-  daily: "bg-purple-600",
+  "pacer-market": "bg-slate-700",
+  station: "bg-blue-600",
+  starbucks: "bg-amber-700",
+  grocery: "bg-emerald-600",
+  "pacer-store": "bg-purple-600",
 };
 
 export function ProductCard({ product }: ProductCardProps) {

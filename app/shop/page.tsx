@@ -2,8 +2,9 @@
 
 import React from "react"
 
-import { useState, useMemo } from "react";
-import { Search, ShoppingCart, Cookie, Apple, BookOpen, Droplet } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Search, Store, NotebookPen, Coffee, Apple, ShoppingBag } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { ProductCard } from "@/components/product-card";
@@ -14,24 +15,36 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const categoryIcons: Record<string, React.ReactNode> = {
-  all: <ShoppingCart className="h-4 w-4" />,
-  snacks: <Cookie className="h-4 w-4" />,
-  groceries: <Apple className="h-4 w-4" />,
-  academic: <BookOpen className="h-4 w-4" />,
-  daily: <Droplet className="h-4 w-4" />,
+  "pacer-market": <Store className="h-4 w-4" />,
+  station: <NotebookPen className="h-4 w-4" />,
+  starbucks: <Coffee className="h-4 w-4" />,
+  grocery: <Apple className="h-4 w-4" />,
+  "pacer-store": <ShoppingBag className="h-4 w-4" />,
 };
 
 function ShopContent() {
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]?.id ?? "pacer-market");
+
+  useEffect(() => {
+    const urlSearch = searchParams.get("search") ?? "";
+    const urlCategory = searchParams.get("category") ?? "";
+    const validCategory = categories.some((c) => c.id === urlCategory);
+
+    setSearchQuery(urlSearch);
+
+    if (validCategory) {
+      setSelectedCategory(urlCategory);
+    }
+  }, [searchParams]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesSearch =
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory =
-        selectedCategory === "all" || product.category === selectedCategory;
+      const matchesCategory = product.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
   }, [searchQuery, selectedCategory]);
