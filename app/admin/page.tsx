@@ -63,6 +63,8 @@ const recentOrders = [
 function AdminContent() {
   const [ordersState, setOrdersState] = useState<any[]>([]);
 
+
+
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("orders") || "null");
