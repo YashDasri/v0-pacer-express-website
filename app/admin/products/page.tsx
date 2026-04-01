@@ -25,10 +25,11 @@ import {
 import { cn } from "@/lib/utils";
 
 const categoryColors: Record<string, string> = {
-  snacks: "bg-slate-700",
-  groceries: "bg-emerald-600",
-  academic: "bg-blue-600",
-  daily: "bg-purple-600",
+  "pacer-market": "bg-slate-700",
+  station: "bg-blue-600",
+  starbucks: "bg-amber-700",
+  grocery: "bg-emerald-600",
+  "pacer-store": "bg-purple-600",
 };
 
 function ProductsContent() {
@@ -40,7 +41,7 @@ function ProductsContent() {
     name: "",
     description: "",
     price: "",
-    category: "snacks" as Product["category"],
+    category: "pacer-market" as Product["category"],
     image: "",
   });
 
@@ -66,7 +67,7 @@ function ProductsContent() {
         name: "",
         description: "",
         price: "",
-        category: "snacks",
+        category: "pacer-market",
         image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop",
       });
     }
@@ -178,10 +179,11 @@ function ProductsContent() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="snacks">Snacks</SelectItem>
-                        <SelectItem value="groceries">Groceries</SelectItem>
-                        <SelectItem value="academic">Academic</SelectItem>
-                        <SelectItem value="daily">Daily</SelectItem>
+                        <SelectItem value="pacer-market">Pacer Market</SelectItem>
+                        <SelectItem value="station">Station</SelectItem>
+                        <SelectItem value="starbucks">Starbucks</SelectItem>
+                        <SelectItem value="grocery">Grocery</SelectItem>
+                        <SelectItem value="pacer-store">Pacer Store</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
