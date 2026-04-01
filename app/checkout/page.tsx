@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { MapPin, Clock, Package, Check, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -21,26 +20,38 @@ import { campusLocations } from "@/lib/products";
 import { PaymentSection, type PaymentMethod } from "@/components/payment-section";
 
 function CheckoutContent() {
-  const router = useRouter();
   const { items, totalPrice, updateQuantity, removeItem, clearCart } = useCart();
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
+  const [selectedRegularPaymentMethod, setSelectedRegularPaymentMethod] = useState<PaymentMethod | null>(null);
+  const [selectedStorePaymentMethod, setSelectedStorePaymentMethod] = useState<PaymentMethod | null>(null);
+  const [regularPaid, setRegularPaid] = useState(false);
+  const [storePaid, setStorePaid] = useState(false);
 
-  const handleProcessPayment = async (method: PaymentMethod): Promise<boolean> => {
-    if (!location) {
-      alert("Please select a delivery location");
-      return false;
-    }
+  const storeItems = useMemo(() => items.filter((item) => item.category === "pacer-store"), [items]);
+  const regularItems = useMemo(() => items.filter((item) => item.category !== "pacer-store"), [items]);
+  const storeTotal = useMemo(
+    () => storeItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    [storeItems]
+  );
+  const regularTotal = useMemo(
+    () => regularItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    [regularItems]
+  );
 
-    // Simulate payment processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+  const hasStoreItems = storeItems.length > 0;
+  const hasRegularItems = regularItems.length > 0;
 
-    // In production, you would integrate with actual payment gateway
-    console.log(`Processing ${method} payment of $${totalPrice.toFixed(2)}`);
-    // build order object
+  useEffect(() => {
+    setRegularPaid(false);
+    setStorePaid(false);
+  }, [items]);
+
+  const finalizeOrder = (
+    payments: { section: "regular" | "pacer-store"; method: PaymentMethod; amount: number }[]
+  ) => {
     const order = {
       id: `#${Math.random().toString(36).slice(2, 10).toUpperCase()}`,
       customer: "Guest User",
@@ -48,7 +59,9 @@ function CheckoutContent() {
       total: totalPrice,
       status: "Preparing",
       date: new Date().toLocaleString(),
-      items: items.map((it) => ({ id: it.id, name: it.name, quantity: it.quantity, price: it.price })),
+      notes,
+      payments,
+      items: items.map((it) => ({ id: it.id, name: it.name, quantity: it.quantity, price: it.price, category: it.category })),
     };
 
     try {
@@ -61,6 +74,57 @@ function CheckoutContent() {
 
     setOrderPlaced(true);
     clearCart();
+  };
+
+  const processSectionPayment = async (method: PaymentMethod, amount: number): Promise<boolean> => {
+    if (!location) {
+      alert("Please select a delivery location");
+      return false;
+    }
+
+    setLoading(true);
+    // Simulate payment processing
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setLoading(false);
+
+    // In production, you would integrate with actual payment gateway
+    console.log(`Processing ${method} payment of $${amount.toFixed(2)}`);
+    return true;
+  };
+
+  const handleRegularPayment = async (method: PaymentMethod): Promise<boolean> => {
+    const success = await processSectionPayment(method, regularTotal);
+    if (!success) return false;
+
+    setRegularPaid(true);
+
+    if (!hasStoreItems || storePaid) {
+      const paymentParts: { section: "regular" | "pacer-store"; method: PaymentMethod; amount: number }[] = [];
+      if (hasRegularItems) paymentParts.push({ section: "regular", method, amount: regularTotal });
+      if (hasStoreItems && selectedStorePaymentMethod) {
+        paymentParts.push({ section: "pacer-store", method: selectedStorePaymentMethod, amount: storeTotal });
+      }
+      finalizeOrder(paymentParts);
+    }
+
+    return true;
+  };
+
+  const handleStorePayment = async (method: PaymentMethod): Promise<boolean> => {
+    const success = await processSectionPayment(method, storeTotal);
+    if (!success) return false;
+
+    setStorePaid(true);
+
+    if (!hasRegularItems || regularPaid) {
+      const paymentParts: { section: "regular" | "pacer-store"; method: PaymentMethod; amount: number }[] = [];
+      if (hasRegularItems && selectedRegularPaymentMethod) {
+        paymentParts.push({ section: "regular", method: selectedRegularPaymentMethod, amount: regularTotal });
+      }
+      if (hasStoreItems) paymentParts.push({ section: "pacer-store", method, amount: storeTotal });
+      finalizeOrder(paymentParts);
+    }
+
     return true;
   };
 
@@ -251,14 +315,43 @@ function CheckoutContent() {
               </div>
             </div>
 
-            {/* Payment Section */}
-            <PaymentSection
-              totalPrice={totalPrice}
-              selectedMethod={selectedPaymentMethod}
-              onPaymentMethodChange={setSelectedPaymentMethod}
-              onProcessPayment={handleProcessPayment}
-              isProcessing={loading}
-            />
+            {/* Payment Sections */}
+            {hasRegularItems && (
+              <PaymentSection
+                title="Payment - Campus Marketplace Items"
+                description="Use any payment method, including Declining Balance, for non-Pacer Store items."
+                totalPrice={regularTotal}
+                selectedMethod={selectedRegularPaymentMethod}
+                onPaymentMethodChange={setSelectedRegularPaymentMethod}
+                onProcessPayment={handleRegularPayment}
+                isProcessing={loading}
+                isPaid={regularPaid}
+                payButtonText={
+                  hasStoreItems && !storePaid
+                    ? "Pay this section"
+                    : "Pay and Place Order"
+                }
+              />
+            )}
+
+            {hasStoreItems && (
+              <PaymentSection
+                title="Payment - Pacer Store Items"
+                description="Declining Balance is not accepted for Pacer Store items. Please use another payment option."
+                totalPrice={storeTotal}
+                selectedMethod={selectedStorePaymentMethod}
+                onPaymentMethodChange={setSelectedStorePaymentMethod}
+                onProcessPayment={handleStorePayment}
+                isProcessing={loading}
+                allowedMethods={["credit", "debit", "cash"]}
+                isPaid={storePaid}
+                payButtonText={
+                  hasRegularItems && !regularPaid
+                    ? "Pay this section"
+                    : "Pay and Place Order"
+                }
+              />
+            )}
           </div>
 
           {/* Order Summary */}
@@ -299,7 +392,9 @@ function CheckoutContent() {
                 </div>
                 <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
                   <Check className="h-4 w-4 text-emerald-500" />
-                  Multiple Payment Options Available
+                  {hasStoreItems
+                    ? "Pacer Store items exclude Declining Balance"
+                    : "Multiple Payment Options Available"}
                 </div>
               </div>
             </div>

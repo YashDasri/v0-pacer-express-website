@@ -1,18 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
-import { ShoppingCart, User, Moon, Sun, Menu, X, Package } from "lucide-react";
+import { ShoppingCart, User, Moon, Sun, Menu, X, Package, Search } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useCart } from "@/lib/cart-context";
+import { products } from "@/lib/products";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { totalItems } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [navSearch, setNavSearch] = useState("");
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -30,6 +35,27 @@ export function Navbar() {
 
   const isAdmin = pathname?.startsWith("/admin");
   if (isAdmin) return <AdminNavbar />;
+
+  const handleNavbarSearch = () => {
+    const query = navSearch.trim();
+    if (!query) return;
+
+    const lower = query.toLowerCase();
+    const match = products.find(
+      (product) =>
+        product.name.toLowerCase().includes(lower) ||
+        product.description.toLowerCase().includes(lower)
+    );
+
+    if (match) {
+      router.push(
+        `/shop?category=${encodeURIComponent(match.category)}&search=${encodeURIComponent(query)}`
+      );
+      return;
+    }
+
+    router.push(`/shop?search=${encodeURIComponent(query)}`);
+  };
 
   return (
     <header className={headerClassName}>
@@ -51,7 +77,7 @@ export function Navbar() {
 
           <nav className="hidden md:flex items-center gap-6">
             <Link
-              href="/shop"
+              href="/shop?category=pacer-market"
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary",
                 pathname === "/shop"
@@ -63,12 +89,93 @@ export function Navbar() {
                   : "text-foreground"
               )}
             >
-              Shop
+              Pacer Market
+            </Link>
+            <Link
+              href="/shop?category=station"
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary",
+                pathname === "/shop"
+                  ? "text-primary"
+                  : mounted
+                  ? isLight
+                    ? "text-gray-700"
+                    : "text-foreground"
+                  : "text-foreground"
+              )}
+            >
+              Station
+            </Link>
+            <Link
+              href="/shop?category=starbucks"
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary",
+                pathname === "/shop"
+                  ? "text-primary"
+                  : mounted
+                  ? isLight
+                    ? "text-gray-700"
+                    : "text-foreground"
+                  : "text-foreground"
+              )}
+            >
+              Starbucks
+            </Link>
+            <Link
+              href="/shop?category=grocery"
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary",
+                pathname === "/shop"
+                  ? "text-primary"
+                  : mounted
+                  ? isLight
+                    ? "text-gray-700"
+                    : "text-foreground"
+                  : "text-foreground"
+              )}
+            >
+              Grocery
+            </Link>
+            <Link
+              href="/shop?category=pacer-store"
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary",
+                pathname === "/shop"
+                  ? "text-primary"
+                  : mounted
+                  ? isLight
+                    ? "text-gray-700"
+                    : "text-foreground"
+                  : "text-foreground"
+              )}
+            >
+              Pacer Store
             </Link>
           </nav>
         </div>
 
         <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2">
+            <div className="relative w-52">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={navSearch}
+                onChange={(e) => setNavSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleNavbarSearch();
+                  }
+                }}
+                placeholder="Search products"
+                className="h-9 pl-9"
+              />
+            </div>
+            <Button variant="secondary" size="sm" onClick={handleNavbarSearch}>
+              Search
+            </Button>
+          </div>
+
           <Button
             variant="ghost"
             size="icon"
@@ -118,8 +225,20 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background p-4">
           <nav className="flex flex-col gap-4">
-            <Link href="/shop" className="text-sm font-medium text-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
-              Shop
+            <Link href="/shop?category=pacer-market" className="text-sm font-medium text-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
+              Pacer Market
+            </Link>
+            <Link href="/shop?category=station" className="text-sm font-medium text-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
+              Station
+            </Link>
+            <Link href="/shop?category=starbucks" className="text-sm font-medium text-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
+              Starbucks
+            </Link>
+            <Link href="/shop?category=grocery" className="text-sm font-medium text-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
+              Grocery
+            </Link>
+            <Link href="/shop?category=pacer-store" className="text-sm font-medium text-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
+              Pacer Store
             </Link>
             <Link href="/login" className="text-sm font-medium text-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
               Login
